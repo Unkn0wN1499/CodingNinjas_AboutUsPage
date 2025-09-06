@@ -134,14 +134,17 @@ const SpeakerCard = ({ speaker, index }: { speaker: Speaker; index: number }) =>
 
   const initials = useMemo(() => speaker.name.split(" ").map(w => w[0]).join(""), [speaker.name]);
 
-  // Fallback data URI (soft neutral gradient)
-  const fallbackData = "data:image/svg+xml;base64," + btoa(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop stop-color='#f8e7c2'/><stop offset='1' stop-color='#f1d49f'/></linearGradient></defs><rect fill='url(#g)' width='300' height='400'/><text x='50%' y='54%' font-size='90' font-family='Arial' dy='.35em' text-anchor='middle' fill='#222' font-weight='700'>${initials}</text></svg>`);
+  // Fallback data URI (soft neutral gradient) — SSR-safe (Vercel)
+  const fallbackSvg = `<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><defs><linearGradient id='g' x1='0' x2='0' y1='0' y2='1'><stop stop-color='#f8e7c2'/><stop offset='1' stop-color='#f1d49f'/></linearGradient></defs><rect fill='url(#g)' width='300' height='400'/><text x='50%' y='54%' font-size='90' font-family='Arial' dy='.35em' text-anchor='middle' fill='#222' font-weight='700'>${initials}</text></svg>`;
+  const fallbackData = `data:image/svg+xml;base64,${
+    typeof window === 'undefined' ? Buffer.from(fallbackSvg).toString('base64') : btoa(fallbackSvg)
+  }`;
 
   return (
     <motion.div
       ref={cardRef}
-      className={`speaker-card relative reveal ${visible ? 'visible' : ''}`}
-      style={{ ['--offset' as any]: `${offsetPx}px` }}
+  className={`speaker-card relative reveal ${visible ? 'visible' : ''}`}
+  style={{ '--offset': `${offsetPx}px` } as React.CSSProperties & Record<'--offset', string>}
       onMouseEnter={() => positionIdle()}
       initial="hidden"
       animate={controls}
