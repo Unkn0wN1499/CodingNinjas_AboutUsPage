@@ -1,73 +1,30 @@
 "use client";
 
+import React from 'react';
 import Image from "next/image";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 
-interface Speaker {
+export type Speaker = {
   id: string;
   name: string;
-  category: string; // e.g. Animation, Design
-  blurb: string; // short line near name pill
-  description: string; // longer paragraph in white box
-  image?: string; // optional image path
-  color: string; // base color class
-  accent: string; // darker outline color
-}
+  category: string;
+  blurb: string;
+  description: string;
+  image?: string;
+  color: string;
+  accent: string;
+};
 
-// Simple asset versioning to help dev cache busting (append ?v=...)
 const ASSET_VERSION = 'v1';
 
-// NOTE: Replace placeholder text/images with real content.
-const speakers: Speaker[] = [
-  {
-    id: "1",
-    name: "Cassie Evans",
-    category: "Animation",
-    blurb: "Creative Leader",
-    description:
-      "Our CSS/JS creative codemaster is here to animate stories between magic & ambitious goals. We're confident you'll walk away with secrets you can show on the weekend.",
-    image: "/speakers/cassie.jpg",
-    color: "bg-amber-500",
-    accent: "outline-amber-700"
-  },
-  {
-    id: "2",
-    name: "Elon Tse",
-    category: "Developer",
-    blurb: "Vision & Code",
-    description:
-      "Oh look, we've only gone and secured the revered frontend co-founder of Clamo & Webflow's superbrain. We can't wait to learn from Elg!",
-    image: "/speakers/elon.jpg",
-    color: "bg-orange-500",
-    accent: "outline-orange-700"
-  },
-  {
-    id: "3",
-    name: "Stephanie Bruce",
-    category: "Design",
-    blurb: "Experience Drive",
-    description:
-      "Dives want to work with her; designers want to be her. Steph has this grounding warmth with her shattering work ethic and joyful mentoring. We're excited she'll be sharing her expert freelancer growth tips!",
-    image: "/speakers/stephanie.jpg",
-    color: "bg-pink-500",
-    accent: "outline-pink-700"
-  },
-  {
-    id: "4",
-    name: "Ross Fletcher",
-    category: "Animation",
-    blurb: "Motion Practice",
-    description:
-      "We've all wanted to animate something cool with SVG, and Ross is here to show you how with his ridiculously fun and slick style.",
-    image: "/speakers/ross.jpg",
-    color: "bg-amber-500",
-    accent: "outline-amber-700"
-  }
-];
-
-// Utility to build an irregular outline using pseudo elements
-const SpeakerCard = ({ speaker, index }: { speaker: Speaker; index: number }) => {
+const CandidateCard = ({
+  speaker,
+  index
+}: {
+  speaker: Speaker;
+  index: number;
+}): React.ReactElement => {
   // Detect coarse pointers (touch) to disable custom cursor
   const [enableCursor, setEnableCursor] = useState(false);
   useEffect(() => {
@@ -140,11 +97,13 @@ const SpeakerCard = ({ speaker, index }: { speaker: Speaker; index: number }) =>
     typeof window === 'undefined' ? Buffer.from(fallbackSvg).toString('base64') : btoa(fallbackSvg)
   }`;
 
+  const dummyImage = require('../assets/dummy.avif');
+
   return (
     <motion.div
       ref={cardRef}
-  className={`speaker-card relative reveal ${visible ? 'visible' : ''}`}
-  style={{ '--offset': `${offsetPx}px` } as React.CSSProperties & Record<'--offset', string>}
+      className={`speaker-card relative reveal ${visible ? 'visible' : ''}`}
+      style={{ '--offset': `${offsetPx}px`, width: 320, height: 420 } as React.CSSProperties & Record<'--offset', string>}
       onMouseEnter={() => positionIdle()}
       initial="hidden"
       animate={controls}
@@ -154,40 +113,33 @@ const SpeakerCard = ({ speaker, index }: { speaker: Speaker; index: number }) =>
           opacity: 1,
           rotateY: 0,
           scale: 1,
-          transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], type: "spring", bounce: 0.45 }
+          transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1], type: "spring", bounce: 0.45 }
         }
       }}
     >
-      <div className="category-badge">{speaker.category}</div>
+      <div className="category-badge font-bold text-orange-500 text-sm mb-2">{speaker.category}</div>
       <div
         className={`panel relative ${speaker.color} group ${enableCursor ? 'custom-cursor' : ''}`}
         onMouseMove={enableCursor ? handleMove : undefined}
         onMouseLeave={enableCursor ? deactivate : undefined}
+        style={{ width: '100%', height: 260, overflow: 'hidden', borderRadius: 16 }}
       >
-        {/* Portrait / image area */}
-  <div className="image-wrapper cursor-none">
-          <div className="portrait-shell group/portrait">
-            <Image
-              src={((speaker.image && !imgError) ? `${speaker.image}?v=${ASSET_VERSION}` : fallbackData)}
-              alt={speaker.name}
-              fill
-              sizes="240px"
-              className="object-cover portrait-image"
-              priority={false}
-              onError={() => setImgError(true)}
-            />
-            {/* Dual stroke outline */}
-            <svg className="outline-layer" viewBox="0 0 300 400" aria-hidden>
-              <polygon points="40,12 260,12 288,200 248,388 42,388 14,210" fill="none" stroke="#161616" strokeWidth="3" />
-              <polygon points="52,24 270,24 294,200 256,380 54,380 26,210" fill="none" stroke="#161616" strokeWidth="1.5" opacity=".55" />
-            </svg>
-          </div>
+        <div className="image-wrapper cursor-none" style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <Image
+            src={dummyImage}
+            alt={speaker.name}
+            fill
+            sizes="320px"
+            className="object-cover portrait-image rounded-t-xl"
+            priority={false}
+            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+          />
         </div>
-  {/* Decorative corner boxes */}
-  <span className="corner-box tl" aria-hidden></span>
-  <span className="corner-box tr" aria-hidden></span>
-  <span className="corner-box bl" aria-hidden></span>
-  <span className="corner-box br" aria-hidden></span>
+        {/* Decorative corner boxes */}
+        <span className="corner-box tl" aria-hidden></span>
+        <span className="corner-box tr" aria-hidden></span>
+        <span className="corner-box bl" aria-hidden></span>
+        <span className="corner-box br" aria-hidden></span>
         {/* Custom follow cursor */}
         {enableCursor && cursor.active && (
           <div className="card-cursor" ref={cursorRef} aria-hidden data-following={cursor.following}>
@@ -195,27 +147,12 @@ const SpeakerCard = ({ speaker, index }: { speaker: Speaker; index: number }) =>
           </div>
         )}
       </div>
-      <div className="desc-box">
-        <p className="blurb font-semibold mb-2 text-[11px] tracking-wide uppercase text-neutral-900">{speaker.blurb}</p>
-        <p className="text-[11px] leading-relaxed text-neutral-700">{speaker.description}</p>
+      <div className="desc-box p-4 bg-black/80 rounded-b-xl" style={{ minHeight: 120 }}>
+        <p className="blurb font-bold mb-2 text-[13px] tracking-wide uppercase text-orange-500">{speaker.blurb}</p>
+        <p className="text-[13px] leading-relaxed text-black font-medium">{speaker.description}</p>
       </div>
-  </motion.div>
+    </motion.div>
   );
 };
 
-const SpeakerLineup = () => {
-  return (
-    <section className="speaker-section relative py-24">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Cards grid only (intro block removed) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-20">
-          {speakers.map((sp, i) => (
-            <SpeakerCard key={sp.id} speaker={sp} index={i} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default SpeakerLineup;
+export default CandidateCard;
