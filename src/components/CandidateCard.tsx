@@ -4,6 +4,7 @@ import React from 'react';
 import Image from "next/image";
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
+import dummyImage from '../assets/dummy.avif';
 
 export type Speaker = {
   id: string;
@@ -97,7 +98,7 @@ const CandidateCard = ({
     typeof window === 'undefined' ? Buffer.from(fallbackSvg).toString('base64') : btoa(fallbackSvg)
   }`;
 
-  const dummyImage = require('../assets/dummy.avif');
+
 
   return (
     <motion.div
