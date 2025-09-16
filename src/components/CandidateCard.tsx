@@ -98,7 +98,7 @@ const CandidateCard = ({
     typeof window === 'undefined' ? Buffer.from(fallbackSvg).toString('base64') : btoa(fallbackSvg)
   }`;
 
-
+  // const dummyImage = require('../assets/dummy.avif');
 
   return (
     <motion.div
